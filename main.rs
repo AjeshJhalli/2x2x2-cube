@@ -26,7 +26,11 @@ fn main() {
     display_cube(cube);
     let turned_cube = turn_front(cube.clone());
     let turned_cube2 = turn_front_prime(turned_cube.clone());
-    display_cube(turned_cube2);
+    let turned_cube3 = turn_right(turned_cube2.clone());
+    let turned_cube4 = turn_right_prime(turned_cube3.clone());
+    let turned_cube5 = turn_top(turned_cube4.clone());
+    let turned_cube6 = turn_top_prime(turned_cube5.clone());
+    display_cube(turned_cube6);
 }
 
 fn display_cube(cube: Cube) {
@@ -88,7 +92,6 @@ fn turn_front(mut cube: Cube) -> Cube {
     cube
 }
 
-/*
 fn turn_top(mut cube: Cube) -> Cube {
 
     cube.top = rotate_face_right(cube.top);
@@ -103,7 +106,6 @@ fn turn_top(mut cube: Cube) -> Cube {
     cube
 }
 
-
 fn turn_right(mut cube: Cube) -> Cube {
 
     cube.right = rotate_face_right(cube.right);
@@ -116,7 +118,7 @@ fn turn_right(mut cube: Cube) -> Cube {
     cube.top = cube.top & 0x999999 | temp_front & 0x666666;
 
     cube
-}*/
+}
 
 fn turn_front_prime(mut cube: Cube) -> Cube {
 
@@ -128,6 +130,34 @@ fn turn_front_prime(mut cube: Cube) -> Cube {
     cube.right = cube.right & 0x666666 | (cube.bottom & 0x888888) >> 3 | (cube.bottom & 0x444444) << 1;
     cube.bottom = cube.bottom & 0x333333 | (cube.left & 0x666666) << 1;
     cube.left = cube.left & 0x999999 | (temp_top & 0x333333) << 1;
+
+    cube
+}
+
+fn turn_top_prime(mut cube: Cube) -> Cube {
+
+    cube.top = rotate_face_left(cube.top);
+
+    let temp_front = cube.front;
+
+    cube.front = cube.front & 0x333333 | cube.left & 0xCCCCCC;
+    cube.left = cube.left & 0x333333 | cube.back & 0xCCCCCC;
+    cube.back = cube.back & 0x333333 | cube.right & 0xCCCCCC;
+    cube.right = cube.right & 0x333333 | temp_front & 0xCCCCCC;
+
+    cube
+}
+
+fn turn_right_prime(mut cube: Cube) -> Cube {
+    
+    cube.right = rotate_face_left(cube.right);
+
+    let temp_front = cube.front;
+
+    cube.front = cube.front & 0x999999 | cube.top & 0x666666;
+    cube.top = cube.top & 0x999999 | (cube.back & 0x888888) >> 2 | (cube.back & 0x111111) << 2;
+    cube.back = cube.back & 0x666666 | (cube.bottom & 0x444444) >> 2 | (cube.bottom & 0x222222) << 2;
+    cube.bottom = cube.bottom & 0x999999 | temp_front & 0x666666;
 
     cube
 }
