@@ -25,7 +25,9 @@ fn main() {
 
     display_cube(cube);
     let turned_cube = turn_front(cube.clone());
-    display_cube(turned_cube);
+    let turned_cube2 = turn_right(turned_cube.clone());
+    //let turned_cube3 = turn_top(turned_cube2.clone());
+    display_cube(turned_cube2);
 }
 
 fn display_cube(cube: Cube) {
@@ -55,6 +57,7 @@ fn rotate_face_right(num: i32) -> i32 {
     (nibble5 >> 1 | nibble5 << 3) & 0x00000F
 }
 
+/*
 fn rotate_face_left(num: i32) -> i32 {
 
     let nibble0 = num & 0xF00000;
@@ -70,7 +73,7 @@ fn rotate_face_left(num: i32) -> i32 {
     (nibble3 << 1 | nibble3 >> 3) & 0x000F00 |
     (nibble4 << 1 | nibble4 >> 3) & 0x0000F0 |
     (nibble5 << 1 | nibble5 >> 3) & 0x00000F
-}
+}*/
 
 fn turn_front(mut cube: Cube) -> Cube {
 
@@ -86,6 +89,7 @@ fn turn_front(mut cube: Cube) -> Cube {
     cube
 }
 
+/*
 fn turn_top(mut cube: Cube) -> Cube {
 
     cube.top = rotate_face_right(cube.top);
@@ -99,8 +103,9 @@ fn turn_top(mut cube: Cube) -> Cube {
 
     cube
 }
+*/
 
-fn turn_right(mut cube: Cube) {
+fn turn_right(mut cube: Cube) -> Cube {
 
     cube.right = rotate_face_right(cube.right);
 
@@ -108,7 +113,7 @@ fn turn_right(mut cube: Cube) {
 
     cube.front = cube.front & 0x999999 | cube.bottom & 0x666666;
     cube.bottom = cube.bottom & 0x999999 | (cube.back & 0x888888) >> 2 | (cube.back & 0x111111) << 2;
-    cube.back = cube.back & 0x666666 | (cube.top & 0x888888) >> 2 | (cube.top & 0x111111) << 2;
+    cube.back = cube.back & 0x666666 | (cube.top & 0x444444) >> 2 | (cube.top & 0x222222) << 2;
     cube.top = cube.top & 0x999999 | temp_front & 0x666666;
 
     cube
