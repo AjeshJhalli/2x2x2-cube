@@ -1,6 +1,13 @@
-// 6 24-bit numbers, one for each colour
-
 // BLUE YELLOW RED GREEN WHITE ORANGE
+
+//const EMPTY: i128 = 0;
+const FRONT: i128 = 1;
+const TOP: i128 = 2;
+const RIGHT: i128 = 3;
+const FRONT_PRIME: i128 = 4;
+const TOP_PRIME: i128 = 5;
+const RIGHT_PRIME: i128 = 6;
+
 
 #[derive(Copy, Clone)]
 struct Cube {
@@ -10,6 +17,8 @@ struct Cube {
     back: i32,
     bottom: i32,
     left: i32,
+    moves: i128,
+    moves_ptr: i8
 }
 
 fn main() {
@@ -20,20 +29,50 @@ fn main() {
         right: 0x00F000,
         back: 0x000F00,
         bottom: 0x0000F0,
-        left: 0x00000F
+        left: 0x00000F,
+        moves: 0,
+        moves_ptr: 0
     };
 
-    display_cube(cube);
-    let turned_cube = turn_front(cube.clone());
-    let turned_cube2 = turn_front_prime(turned_cube.clone());
-    let turned_cube3 = turn_right(turned_cube2.clone());
-    let turned_cube4 = turn_right_prime(turned_cube3.clone());
-    let turned_cube5 = turn_top(turned_cube4.clone());
-    let turned_cube6 = turn_top_prime(turned_cube5.clone());
-    display_cube(turned_cube6);
+    let mut initial_cube = turn_top_prime(turn_right(turn_front(turn_top(cube))));
+    initial_cube.moves = 0;
+    initial_cube.moves_ptr = 0;
+
+    display_cube(initial_cube);
+
+    let mut states = std::collections::VecDeque::new();
+    let moves = [FRONT, TOP, RIGHT, FRONT_PRIME, TOP_PRIME, RIGHT_PRIME];
+
+    states.push_back(initial_cube);
+
+    while !states.is_empty() {
+        let current_state = *states.front().unwrap();
+        states.pop_front();
+
+        if is_solved(current_state) {
+            println!("{:014x}", current_state.moves);
+            break;
+        }
+
+        for i in 0..moves.len() {
+            let new_state = match moves[i] {
+                FRONT => turn_front(current_state),
+                TOP => turn_top(current_state),
+                RIGHT => turn_right(current_state),
+                FRONT_PRIME => turn_front_prime(current_state),
+                TOP_PRIME => turn_top_prime(current_state),
+                RIGHT_PRIME => turn_right_prime(current_state),
+                _ => current_state,
+            };
+
+            states.push_back(new_state);
+        }   
+    }
 }
 
+
 fn display_cube(cube: Cube) {
+    println!("        BYRGWO");
     println!("Front:  {:06x}", cube.front);
     println!("Top:    {:06x}", cube.top);
     println!("Right:  {:06x}", cube.right);
@@ -89,6 +128,9 @@ fn turn_front(mut cube: Cube) -> Cube {
     cube.bottom = cube.bottom & 0x333333 | (cube.right & 0x888888) >> 1 | (cube.right & 0x111111) << 3;
     cube.right = cube.right & 0x666666 | (temp_top & 0x111111) << 3 | (temp_top & 0x222222) >> 1;
 
+    cube.moves |= FRONT << cube.moves_ptr;
+    cube.moves_ptr += 4;
+
     cube
 }
 
@@ -102,6 +144,9 @@ fn turn_top(mut cube: Cube) -> Cube {
     cube.right = cube.right & 0x333333 | cube.back & 0xCCCCCC;
     cube.back = cube.back & 0x333333 | cube.left & 0xCCCCCC;
     cube.left = cube.left & 0x333333 | temp_front & 0xCCCCCC;
+
+    cube.moves |= TOP << cube.moves_ptr;
+    cube.moves_ptr += 4;
 
     cube
 }
@@ -117,6 +162,9 @@ fn turn_right(mut cube: Cube) -> Cube {
     cube.back = cube.back & 0x666666 | (cube.top & 0x444444) >> 2 | (cube.top & 0x222222) << 2;
     cube.top = cube.top & 0x999999 | temp_front & 0x666666;
 
+    cube.moves |= RIGHT << cube.moves_ptr;
+    cube.moves_ptr += 4;
+
     cube
 }
 
@@ -130,6 +178,9 @@ fn turn_front_prime(mut cube: Cube) -> Cube {
     cube.right = cube.right & 0x666666 | (cube.bottom & 0x888888) >> 3 | (cube.bottom & 0x444444) << 1;
     cube.bottom = cube.bottom & 0x333333 | (cube.left & 0x666666) << 1;
     cube.left = cube.left & 0x999999 | (temp_top & 0x333333) << 1;
+
+    cube.moves |= FRONT_PRIME << cube.moves_ptr;
+    cube.moves_ptr += 4;
 
     cube
 }
@@ -145,6 +196,9 @@ fn turn_top_prime(mut cube: Cube) -> Cube {
     cube.back = cube.back & 0x333333 | cube.right & 0xCCCCCC;
     cube.right = cube.right & 0x333333 | temp_front & 0xCCCCCC;
 
+    cube.moves |= TOP_PRIME << cube.moves_ptr;
+    cube.moves_ptr += 4;
+
     cube
 }
 
@@ -159,5 +213,18 @@ fn turn_right_prime(mut cube: Cube) -> Cube {
     cube.back = cube.back & 0x666666 | (cube.bottom & 0x444444) >> 2 | (cube.bottom & 0x222222) << 2;
     cube.bottom = cube.bottom & 0x999999 | temp_front & 0x666666;
 
+    cube.moves |= RIGHT_PRIME << cube.moves_ptr;
+    cube.moves_ptr += 4;
+
     cube
+}
+
+
+fn is_solved(cube: Cube) -> bool {
+    cube.front == 0xF00000 &&
+    cube.top == 0x0F0000 &&
+    cube.right == 0x00F000 &&
+    cube.back == 0x000F00 &&
+    cube.bottom == 0x0000F0 &&
+    cube.left == 0x00000F
 }
