@@ -1,12 +1,17 @@
+use std::primitive::str;
+use std::env;
+
 // BLUE YELLOW RED GREEN WHITE ORANGE
 
-//const EMPTY: i128 = 0;
 const FRONT: i128 = 1;
 const TOP: i128 = 2;
 const RIGHT: i128 = 3;
 const FRONT_PRIME: i128 = 4;
 const TOP_PRIME: i128 = 5;
 const RIGHT_PRIME: i128 = 6;
+const FRONT2: i128 = 7;
+const TOP2: i128 = 8;
+const RIGHT2: i128 = 9;
 
 
 #[derive(Copy, Clone)]
@@ -34,14 +39,19 @@ fn main() {
         moves_ptr: 0
     };
 
-    let mut initial_cube = turn_top_prime(turn_right(turn_front(turn_top(cube))));
+    let args: Vec<String> = env::args().collect();
+
+    let shuffle = &args[1];
+
+    let mut initial_cube = exec_algorithm(cube, shuffle);
     initial_cube.moves = 0;
     initial_cube.moves_ptr = 0;
 
-    display_cube(initial_cube);
+    println!("Shuffle: {}", shuffle);
 
     let mut states = std::collections::VecDeque::new();
-    let moves = [FRONT, TOP, RIGHT, FRONT_PRIME, TOP_PRIME, RIGHT_PRIME];
+    let moves = [FRONT, TOP, RIGHT, FRONT_PRIME, TOP_PRIME,
+                 RIGHT_PRIME, FRONT2, TOP2, RIGHT2];
 
     states.push_back(initial_cube);
 
@@ -50,7 +60,29 @@ fn main() {
         states.pop_front();
 
         if is_solved(current_state) {
-            println!("{:014x}", current_state.moves);
+
+            let pointer = 0xF;
+
+            print!("Solve: ");
+
+            for i in 0..12 {
+                let shift_amount = i * 4;
+                let the_move = (current_state.moves & pointer << shift_amount) >> shift_amount;
+                
+                match the_move {
+                    FRONT => print!("F "),
+                    TOP => print!("U "),
+                    RIGHT => print!("R "),
+                    FRONT_PRIME => print!("F' "),
+                    TOP_PRIME => print!("U' "),
+                    RIGHT_PRIME => print!("R' "),
+                    FRONT2 => print!("F2 "),
+                    TOP2 => print!("U2 "),
+                    RIGHT2 => print!("R2 "),
+                    _ => break,
+                }
+            }
+            println!("");
             break;
         }
 
@@ -62,6 +94,9 @@ fn main() {
                 FRONT_PRIME => turn_front_prime(current_state),
                 TOP_PRIME => turn_top_prime(current_state),
                 RIGHT_PRIME => turn_right_prime(current_state),
+                FRONT2 => turn_front2(current_state),
+                TOP2 => turn_top2(current_state),
+                RIGHT2 => turn_right2(current_state),
                 _ => current_state,
             };
 
@@ -70,7 +105,7 @@ fn main() {
     }
 }
 
-
+/*
 fn display_cube(cube: Cube) {
     println!("        BYRGWO");
     println!("Front:  {:06x}", cube.front);
@@ -80,7 +115,28 @@ fn display_cube(cube: Cube) {
     println!("Bottom: {:06x}", cube.bottom);
     println!("Left:   {:06x}", cube.left);
     println!("");
+}*/
+
+fn exec_algorithm(mut cube: Cube, algorithm: &str) -> Cube {
+
+    for symbol in algorithm.split_whitespace() {
+        cube = match symbol {
+            "F" => turn_front(cube),
+            "U" => turn_top(cube),
+            "R" => turn_right(cube),
+            "F'" => turn_front_prime(cube),
+            "U'" => turn_top_prime(cube),
+            "R'" => turn_right_prime(cube),
+            "F2" => turn_front2(cube),
+            "U2" => turn_top2(cube),
+            "R2" => turn_right2(cube),
+            _ => cube,
+        }
+    }
+
+    cube
 }
+
 
 fn rotate_face_right(num: i32) -> i32 {
 
@@ -116,6 +172,25 @@ fn rotate_face_left(num: i32) -> i32 {
     (nibble4 << 1 | nibble4 >> 3) & 0x0000F0 |
     (nibble5 << 1 | nibble5 >> 3) & 0x00000F
 }
+
+
+fn rotate_face2(num: i32) -> i32 {
+
+    let nibble0 = num & 0xF00000;
+    let nibble1 = num & 0x0F0000;
+    let nibble2 = num & 0x00F000;
+    let nibble3 = num & 0x000F00;
+    let nibble4 = num & 0x0000F0;
+    let nibble5 = num & 0x00000F;
+
+    (nibble0 << 2 | nibble0 >> 2) & 0xF00000 |
+    (nibble1 << 2 | nibble1 >> 2) & 0x0F0000 |
+    (nibble2 << 2 | nibble2 >> 2) & 0x00F000 |
+    (nibble3 << 2 | nibble3 >> 2) & 0x000F00 |
+    (nibble4 << 2 | nibble4 >> 2) & 0x0000F0 |
+    (nibble5 << 2 | nibble5 >> 2) & 0x00000F
+}
+
 
 fn turn_front(mut cube: Cube) -> Cube {
 
@@ -214,6 +289,61 @@ fn turn_right_prime(mut cube: Cube) -> Cube {
     cube.bottom = cube.bottom & 0x999999 | temp_front & 0x666666;
 
     cube.moves |= RIGHT_PRIME << cube.moves_ptr;
+    cube.moves_ptr += 4;
+
+    cube
+}
+
+
+fn turn_front2(mut cube: Cube) -> Cube {
+
+    cube.front = rotate_face2(cube.front);
+
+    let temp_top = cube.top;
+    let temp_left = cube.left;
+
+    cube.top = cube.top & 0xCCCCCC | (cube.bottom & 0xCCCCCC) >> 2;
+    cube.bottom = cube.bottom & 0x333333 | (temp_top & 0x333333) << 2;
+    cube.left = cube.left & 0x999999 | (cube.right & 0x888888) >> 2 | (cube.right & 0x111111) << 2;
+    cube.right = cube.right & 0x666666 | (temp_left & 0x444444) >> 2 | (temp_left & 0x222222) << 2;
+
+    cube.moves |= FRONT2 << cube.moves_ptr;
+    cube.moves_ptr += 4;
+
+    cube
+}
+
+fn turn_top2(mut cube: Cube) -> Cube {
+
+    cube.top = rotate_face2(cube.top);
+
+    let temp_front = cube.front;
+    let temp_left = cube.left;
+
+    cube.front = cube.front & 0x333333 | cube.back & 0xCCCCCC;
+    cube.back = cube.back & 0x333333 | temp_front & 0xCCCCCC;
+    cube.left = cube.left & 0x333333 | cube.right & 0xCCCCCC;
+    cube.right = cube.right & 0x333333 | temp_left & 0xCCCCCC;
+
+    cube.moves |= TOP2 << cube.moves_ptr;
+    cube.moves_ptr += 4;
+
+    cube
+}
+
+fn turn_right2(mut cube: Cube) -> Cube {
+
+    cube.right = rotate_face2(cube.right);
+
+    let temp_front = cube.front;
+    let temp_bottom = cube.bottom;
+
+    cube.front = cube.front & 0x999999 | (cube.back & 0x888888) >> 2 | (cube.back & 0x111111) << 2;
+    cube.back = cube.back & 0x666666 | (temp_front & 0x444444) >> 2 | (temp_front & 0x222222) << 2;
+    cube.bottom = cube.bottom & 0x999999 | cube.top & 0x666666;
+    cube.top = cube.top & 0x999999 | temp_bottom & 0x666666;
+
+    cube.moves |= RIGHT2 << cube.moves_ptr;
     cube.moves_ptr += 4;
 
     cube
