@@ -8,6 +8,40 @@ const ORANGE = 6;
 
 var selectedColour;
 
+setColours();
+
+function setColours () {
+	
+	elements = document.getElementsByClassName('front');
+	for (let i = 0; i < elements.length; i++) {
+		elements[i].style.backgroundColor = 'blue';
+	}
+	
+	elements = document.getElementsByClassName('up');
+	for (let i = 0; i < elements.length; i++) {
+		elements[i].style.backgroundColor = 'yellow';
+	}
+	
+	elements = document.getElementsByClassName('right');
+	for (let i = 0; i < elements.length; i++) {
+		elements[i].style.backgroundColor = 'red';
+	}
+	
+	elements = document.getElementsByClassName('back');
+	for (let i = 0; i < elements.length; i++) {
+		elements[i].style.backgroundColor = '#00FF7F';
+	}
+	
+	elements = document.getElementsByClassName('bottom');
+	for (let i = 0; i < elements.length; i++) {
+		elements[i].style.backgroundColor = 'white';
+	}
+	
+	elements = document.getElementsByClassName('left');
+	for (let i = 0; i < elements.length; i++) {
+		elements[i].style.backgroundColor = 'orange';
+	}
+}
 
 document.getElementById('bluebutton').onclick = function () {
 	selectedColour = BLUE;

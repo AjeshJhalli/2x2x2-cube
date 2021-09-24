@@ -9,7 +9,9 @@ const UP2 = 8;
 const RIGHT2 = 9;
 
 
-function main () {
+function optimalSolve () {
+	
+	let shuffledCube = convertCube();
 
 	let solvedCube = {
 		front: 0xF00000,
@@ -22,24 +24,6 @@ function main () {
 		movesPtr: 0
 	};
 	
-	let shuffledCube = {
-		front: 0xF00000,
-		up: 0x0F0000,
-		right: 0x00F000,
-		back: 0x000F00,
-		bottom: 0x0000F0,
-		left: 0x00000F,
-		moves: 0,
-		movesPtr: 0
-	};
-	
-	let shuffle = "R U F U' F' R' F2 U2 F2 R";
-	
-	shuffledCube = execAlgorithm(shuffledCube, shuffle);
-	shuffledCube.moves = 0;
-	shuffledCube.movesPtr = 0;
-	
-	console.log('Shuffle: ' + shuffle);
 	console.log('Solving cube...');
 	
 	let moves = [FRONT2, UP2, RIGHT2, FRONT, UP, RIGHT,
@@ -165,6 +149,8 @@ function displaySolution(frontMoves, backMoves) {
     console.log("Solve: ");
         
     let pointer = 0xF;
+	
+	let solution = []
 
     for (let i = 0; i < 7; i++) {
         let shiftAmount = i * 4;
@@ -172,31 +158,31 @@ function displaySolution(frontMoves, backMoves) {
         
         switch (move) {
 		case FRONT:
-			console.log("F ");
+			solution.push("F ");
 			break;
 		case UP:
-			console.log("U ");
+			solution.push("U ");
 			break;
 		case RIGHT:
-			console.log("R ");
+			solution.push("R ");
 			break;
 		case FRONT_PRIME:
-			console.log("F' ");
+			solution.push("F' ");
 			break;
 		case UP_PRIME:
-			console.log("U' ");
+			solution.push("U' ");
 			break;
 		case RIGHT_PRIME:
-			console.log("R' ");
+			solution.push("R' ");
 			break;
 		case FRONT2:
-			console.log("F2 ");
+			solution.push("F2 ");
 			break;
 		case UP2:
-			console.log("U2 ");
+			solution.push("U2 ");
 			break;
 		case RIGHT2:
-			console.log("R2 ");
+			solution.push("R2 ");
 			break;
         }
     }
@@ -207,36 +193,36 @@ function displaySolution(frontMoves, backMoves) {
         
         switch (move) {
 		case FRONT:
-			console.log("F' ");
+			solution.push("F' ");
 			break;
 		case UP:
-			console.log("U' ");
+			solution.push("U' ");
 			break;
 		case RIGHT:
-			console.log("R' ");
+			solution.push("R' ");
 			break;
 		case FRONT_PRIME:
-			console.log("F ");
+			solution.push("F ");
 			break;
 		case UP_PRIME:
-			console.log("U ");
+			solution.push("U ");
 			break;
 		case RIGHT_PRIME:
-			console.log("R ");
+			solution.push("R ");
 			break;
 		case FRONT2:
-			console.log("F2 ");
+			solution.push("F2 ");
 			break;
 		case UP2:
-			console.log("U2 ");
+			solution.push("U2 ");
 			break;
 		case RIGHT2:
-			console.log("R2 ");
+			solution.push("R2 ");
 			break;
         }
     }
 
-    console.log('');
+    document.writeln(solution.join(' '));
 }
 
 function execAlgorithm(cube, algorithm) {
