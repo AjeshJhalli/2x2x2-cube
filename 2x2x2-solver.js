@@ -22,11 +22,22 @@ function main () {
 		movesPtr: 0
 	};
 	
-	let shuffle = "R U F U' F' R'";
+	let shuffledCube = {
+		front: 0xF00000,
+		up: 0x0F0000,
+		right: 0x00F000,
+		back: 0x000F00,
+		bottom: 0x0000F0,
+		left: 0x00000F,
+		moves: 0,
+		movesPtr: 0
+	};
 	
-	let shuffledCube = execAlgorithm(shuffle);
+	let shuffle = "R U F U' F' R' F2 U2 F2 R";
+	
+	shuffledCube = execAlgorithm(shuffledCube, shuffle);
 	shuffledCube.moves = 0;
-	shuffledCube.moves_ptr = 0;
+	shuffledCube.movesPtr = 0;
 	
 	console.log('Shuffle: ' + shuffle);
 	console.log('Solving cube...');
@@ -41,11 +52,11 @@ function main () {
 	backStates.push(solvedCube);
 	
 	while (true) {
-		frontState = frontStates.shift();
-		backState = backStates.shift();
+		let frontState = frontStates.shift();
+		let backState = backStates.shift();
 		
 		for (let i = 0; i < frontStates.length; i++) {
-			for (let j = 0; i < backStates.length; j++) {
+			for (let j = 0; j < backStates.length; j++) {
 				if (frontStates[i].front == backStates[j].front &&
 					frontStates[i].right == backStates[j].right &&
 					frontStates[i].up == backStates[j].up &&
@@ -74,23 +85,21 @@ function main () {
 			}
 		}
 		
-		if (frontPrevMove & 30720 == 0) {
-			for (let i = 0; i < moves.length(); i++) {
-				let nextFront = turnCube(frontState, frontPrevMove, moves[i]);
-				frontStates.push(nextFront);
-			}
+		for (let i = 0; i < moves.length; i++) {
+			let nextFront = turnCube(frontState.front, frontState.up, frontState.right, frontState.back, frontState.bottom,
+									 frontState.left, frontState.moves, frontState.movesPtr, frontPrevMove, moves[i]);
+			frontStates.push(nextFront);
 		}
-		
-		if (backPrevMove & 30720 == 0) {
-			for (let i = 0; i < moves.length(); i++) {
-				let nextBack = turnCube(backState, backPrevMove, moves[i]);
-				backStates.push(nextBack);
-			}			
+
+		for (let i = 0; i < moves.length; i++) {
+			let nextBack = turnCube(backState.front, backState.up, backState.right, backState.back, backState.bottom,
+									backState.left, backState.moves, backState.movesPtr, backPrevMove, moves[i]);
+			backStates.push(nextBack);
 		}
 	}
 }
 
-function turnCube(cube, prevMove, currentMove) {
+function turnCube(front, up, right, back, bottom, left, moves, movesPtr, prevMove, currentMove) {
 			
 	switch (prevMove) {
 		
@@ -99,45 +108,55 @@ function turnCube(cube, prevMove, currentMove) {
 	case FRONT2:
 	
 		switch (currentMove) {
-		case UP: return turnUp(cube);
-		case UP_PRIME: return turnUpPrime(cube);
-		case UP2: return turnUp2(cube);
-		case RIGHT: return turnRight(cube);
-		case RIGHT_PRIME: return turnRightPrime(cube);
-		case RIGHT2: return turnRight2(cube);
+		case UP: return turnUp(front, up, right, back, bottom, left, moves, movesPtr);
+		case UP_PRIME: return turnUpPrime(front, up, right, back, bottom, left, moves, movesPtr);
+		case UP2: return turnUp2(front, up, right, back, bottom, left, moves, movesPtr);
+		case RIGHT: return turnRight(front, up, right, back, bottom, left, moves, movesPtr);
+		case RIGHT_PRIME: return turnRightPrime(front, up, right, back, bottom, left, moves, movesPtr);
+		case RIGHT2: return turnRight2(front, up, right, back, bottom, left, moves, movesPtr);
 		}
-		
-		continue;
 		
 	case UP:
 	case UP_PRIME:
 	case UP2:
 	
 		switch (currentMove) {
-		case FRONT: return turnFront(cube);
-		case FRONT_PRIME: return turnFrontPrime(cube);
-		case FRONT2: return turnFront2(cube);
-		case RIGHT: return turnRight(cube);
-		case RIGHT_PRIME: return turnRightPrime(cube);
-		case RIGHT2: return turnRight2(cube);
+		case FRONT: return turnFront(front, up, right, back, bottom, left, moves, movesPtr);
+		case FRONT_PRIME: return turnFrontPrime(front, up, right, back, bottom, left, moves, movesPtr);
+		case FRONT2: return turnFront2(front, up, right, back, bottom, left, moves, movesPtr);
+		case RIGHT: return turnRight(front, up, right, back, bottom, left, moves, movesPtr);
+		case RIGHT_PRIME: return turnRightPrime(front, up, right, back, bottom, left, moves, movesPtr);
+		case RIGHT2: return turnRight2(front, up, right, back, bottom, left, moves, movesPtr);
 		}
-		
-		continue;
 		
 	case RIGHT:
 	case RIGHT_PRIME:
 	case RIGHT2:
 	
 		switch (currentMove) {
-		case FRONT: return turnFront(cube);
-		case FRONT_PRIME: return turnFrontPrime(cube);
-		case FRONT2: return turnFront2(cube);
-		case UP: return turnUp(cube);
-		case UP_PRIME: return turnUpPrime(cube);
-		case UP2: return turnUp2(cube);
+		case FRONT: return turnFront(front, up, right, back, bottom, left, moves, movesPtr);
+		case FRONT_PRIME: return turnFrontPrime(front, up, right, back, bottom, left, moves, movesPtr);
+		case FRONT2: return turnFront2(front, up, right, back, bottom, left, moves, movesPtr);
+		case UP: return turnUp(front, up, right, back, bottom, left, moves, movesPtr);
+		case UP_PRIME: return turnUpPrime(front, up, right, back, bottom, left, moves, movesPtr);
+		case UP2: return turnUp2(front, up, right, back, bottom, left, moves, movesPtr);
 		}
-		
-		continue;
+	
+	default:
+	
+		switch (currentMove) {
+		case FRONT: return turnFront(front, up, right, back, bottom, left, moves, movesPtr);
+		case FRONT_PRIME: return turnFrontPrime(front, up, right, back, bottom, left, moves, movesPtr);
+		case FRONT2: return turnFront2(front, up, right, back, bottom, left, moves, movesPtr);
+		case UP: return turnUp(front, up, right, back, bottom, left, moves, movesPtr);
+		case UP_PRIME: return turnUpPrime(front, up, right, back, bottom, left, moves, movesPtr);
+		case UP2: return turnUp2(front, up, right, back, bottom, left, moves, movesPtr);
+		case RIGHT: return turnRight(front, up, right, back, bottom, left, moves, movesPtr);
+		case RIGHT_PRIME: return turnRightPrime(front, up, right, back, bottom, left, moves, movesPtr);
+		case RIGHT2: return turnRight2(front, up, right, back, bottom, left, moves, movesPtr);
+		default:
+			return cube;
+		}
 	}
 }
 
@@ -147,7 +166,7 @@ function displaySolution(frontMoves, backMoves) {
         
     let pointer = 0xF;
 
-    for i in 0..7 {
+    for (let i = 0; i < 7; i++) {
         let shiftAmount = i * 4;
         let move = (frontMoves & pointer << shiftAmount) >> shiftAmount;
         
@@ -155,7 +174,7 @@ function displaySolution(frontMoves, backMoves) {
 		case FRONT:
 			console.log("F ");
 			break;
-		case TOP:
+		case UP:
 			console.log("U ");
 			break;
 		case RIGHT:
@@ -164,7 +183,7 @@ function displaySolution(frontMoves, backMoves) {
 		case FRONT_PRIME:
 			console.log("F' ");
 			break;
-		case TOP_PRIME:
+		case UP_PRIME:
 			console.log("U' ");
 			break;
 		case RIGHT_PRIME:
@@ -173,7 +192,7 @@ function displaySolution(frontMoves, backMoves) {
 		case FRONT2:
 			console.log("F2 ");
 			break;
-		case TOP2:
+		case UP2:
 			console.log("U2 ");
 			break;
 		case RIGHT2:
@@ -182,15 +201,15 @@ function displaySolution(frontMoves, backMoves) {
         }
     }
 
-    for i in 0..7 {
-        let shiftAmount = i * 4;
+    for (let i = 0; i < 7; i++) {
+        let shiftAmount = (6-i) * 4;
         let move = (backMoves & pointer << shiftAmount) >> shiftAmount;
         
         switch (move) {
 		case FRONT:
 			console.log("F' ");
 			break;
-		case TOP:
+		case UP:
 			console.log("U' ");
 			break;
 		case RIGHT:
@@ -199,7 +218,7 @@ function displaySolution(frontMoves, backMoves) {
 		case FRONT_PRIME:
 			console.log("F ");
 			break;
-		case TOP_PRIME:
+		case UP_PRIME:
 			console.log("U ");
 			break;
 		case RIGHT_PRIME:
@@ -208,7 +227,7 @@ function displaySolution(frontMoves, backMoves) {
 		case FRONT2:
 			console.log("F2 ");
 			break;
-		case TOP2:
+		case UP2:
 			console.log("U2 ");
 			break;
 		case RIGHT2:
@@ -219,6 +238,46 @@ function displaySolution(frontMoves, backMoves) {
 
     console.log('');
 }
+
+function execAlgorithm(cube, algorithm) {
+	
+	symbols = algorithm.split(' ');
+	
+	symbols.forEach(function(symbol) {
+		switch (symbol) {
+		case 'F':
+			cube = turnFront(cube.front, cube.up, cube.right, cube.back, cube.bottom, cube.left, cube.moves, cube.movesPtr);
+			break;
+		case 'U':
+			cube = turnUp(cube.front, cube.up, cube.right, cube.back, cube.bottom, cube.left, cube.moves, cube.movesPtr);
+			break;
+		case 'R':
+			cube = turnRight(cube.front, cube.up, cube.right, cube.back, cube.bottom, cube.left, cube.moves, cube.movesPtr);
+			break;
+		case "F'":
+			cube = turnFrontPrime(cube.front, cube.up, cube.right, cube.back, cube.bottom, cube.left, cube.moves, cube.movesPtr);
+			break;
+		case "U'":
+			cube = turnUpPrime(cube.front, cube.up, cube.right, cube.back, cube.bottom, cube.left, cube.moves, cube.movesPtr);
+			break;
+		case "R'":
+			cube = turnRightPrime(cube.front, cube.up, cube.right, cube.back, cube.bottom, cube.left, cube.moves, cube.movesPtr);
+			break;
+		case 'F2':
+			cube = turnFront2(cube.front, cube.up, cube.right, cube.back, cube.bottom, cube.left, cube.moves, cube.movesPtr);
+			break;
+		case 'U2':
+			cube = turnUp2(cube.front, cube.up, cube.right, cube.back, cube.bottom, cube.left, cube.moves, cube.movesPtr);
+			break;
+		case 'R2':
+			cube = turnRight2(cube.front, cube.up, cube.right, cube.back, cube.bottom, cube.left, cube.moves, cube.movesPtr);
+			break;
+		}
+	});
+	
+	return cube;
+}
+
 
 function rotateFaceRight(num) {
 
@@ -271,141 +330,257 @@ function rotateFace2(num) {
 			(nibble5 << 2 | nibble5 >> 2) & 0x00000F;
 }
 
-function turnFront(cube) {
+function turnFront(front, up, right, back, bottom, left, moves, movesPtr) {
 
-    cube.front = rotateFaceRight(cube.front);
+    front = rotateFaceRight(front);
 
-    let tempUp = cube.up;
+    let tempUp = up;
 
-    cube.up = cube.up & 0xCCCCCC | (cube.left & 0x666666) >> 1;
-    cube.left = cube.left & 0x999999 | (cube.bottom & 0xCCCCCC) >> 1;
-    cube.bottom = cube.bottom & 0x333333 | (cube.right & 0x888888) >> 1 | (cube.right & 0x111111) << 3;
-    cube.right = cube.right & 0x666666 | (tempUp & 0x111111) << 3 | (tempUp & 0x222222) >> 1;
+    up = up & 0xCCCCCC | (left & 0x666666) >> 1;
+    left = left & 0x999999 | (bottom & 0xCCCCCC) >> 1;
+    bottom = bottom & 0x333333 | (right & 0x888888) >> 1 | (right & 0x111111) << 3;
+    right = right & 0x666666 | (tempUp & 0x111111) << 3 | (tempUp & 0x222222) >> 1;
 
-    cube.moves |= FRONT << cube.movesPtr;
-    cube.movesPtr += 4;
-
-    return cube;
-}
-
-function turnTop(cube) {
-
-    cube.up = rotateFaceRight(cube.up);
-
-    let tempFront = cube.front;
-
-    cube.front = cube.front & 0x333333 | cube.right & 0xCCCCCC;
-    cube.right = cube.right & 0x333333 | cube.back & 0xCCCCCC;
-    cube.back = cube.back & 0x333333 | cube.left & 0xCCCCCC;
-    cube.left = cube.left & 0x333333 | tempFront & 0xCCCCCC;
-
-    cube.moves |= UP << cube.movesPtr;
-    cube.movesPtr += 4;
+    moves |= FRONT << movesPtr;
+    movesPtr += 4;
+	
+	let cube = {
+		front: front,
+		up: up,
+		right: right,
+		back: back,
+		bottom: bottom,
+		left: left,
+		moves: moves,
+		movesPtr: movesPtr
+	};
 
     return cube;
 }
 
-function turnRight(cube) {
+function turnUp(front, up, right, back, bottom, left, moves, movesPtr) {
 
-    cube.right = rotateFaceRight(cube.right);
+    up = rotateFaceRight(up);
 
-    let tempFront = cube.front;
+    let tempFront = front;
 
-    cube.front = cube.front & 0x999999 | cube.bottom & 0x666666;
-    cube.bottom = cube.bottom & 0x999999 | (cube.back & 0x888888) >> 2 | (cube.back & 0x111111) << 2;
-    cube.back = cube.back & 0x666666 | (cube.up & 0x444444) >> 2 | (cube.up & 0x222222) << 2;
-    cube.up = cube.up & 0x999999 | tempFront & 0x666666;
+    front = front & 0x333333 | right & 0xCCCCCC;
+    right = right & 0x333333 | back & 0xCCCCCC;
+    back = back & 0x333333 | left & 0xCCCCCC;
+    left = left & 0x333333 | tempFront & 0xCCCCCC;
 
-    cube.moves |= RIGHT << cube.movesPtr;
-    cube.movesPtr += 4;
-
-    return cube;
-}
-
-function turnFrontPrime(cube) {
-
-    cube.front = rotateFaceLeft(cube.front);
-
-    let tempUp = cube.up;
-
-    cube.up = cube.up & 0xCCCCCC | (cube.right & 0x888888) >> 3 | (cube.right & 0x111111) << 1;
-    cube.right = cube.right & 0x666666 | (cube.bottom & 0x888888) >> 3 | (cube.bottom & 0x444444) << 1;
-    cube.bottom = cube.bottom & 0x333333 | (cube.left & 0x666666) << 1;
-    cube.left = cube.left & 0x999999 | (tempUp & 0x333333) << 1;
-
-    cube.moves |= FRONT_PRIME << cube.moves_ptr;
-    cube.movesPtr += 4;
+    moves |= UP << movesPtr;
+    movesPtr += 4;
+	
+	let cube = {
+		front: front,
+		up: up,
+		right: right,
+		back: back,
+		bottom: bottom,
+		left: left,
+		moves: moves,
+		movesPtr: movesPtr
+	};
 
     return cube;
 }
 
-function turnTopPrime(cube) {
+function turnRight(front, up, right, back, bottom, left, moves, movesPtr) {
 
-    cube.up = rotateFaceLeft(cube.up);
+    right = rotateFaceRight(right);
 
-    let tempFront = cube.front;
+    let tempFront = front;
 
-    cube.front = cube.front & 0x333333 | cube.left & 0xCCCCCC;
-    cube.left = cube.left & 0x333333 | cube.back & 0xCCCCCC;
-    cube.back = cube.back & 0x333333 | cube.right & 0xCCCCCC;
-    cube.right = cube.right & 0x333333 | tempFront & 0xCCCCCC;
+    front = front & 0x999999 | bottom & 0x666666;
+    bottom = bottom & 0x999999 | (back & 0x888888) >> 2 | (back & 0x111111) << 2;
+    back = back & 0x666666 | (up & 0x444444) >> 2 | (up & 0x222222) << 2;
+    up = up & 0x999999 | tempFront & 0x666666;
 
-    cube.moves |= UP_PRIME << cube.moves_ptr;
-    cube.movesPtr += 4;
-
-    return cube;
-}
-
-function turnFront2(cube) {
-
-    cube.front = rotateFace2(cube.front);
-
-    let tempUp = cube.up;
-    let tempLeft = cube.left;
-
-    cube.up = cube.up & 0xCCCCCC | (cube.bottom & 0xCCCCCC) >> 2;
-    cube.bottom = cube.bottom & 0x333333 | (tempUp & 0x333333) << 2;
-    cube.left = cube.left & 0x999999 | (cube.right & 0x888888) >> 2 | (cube.right & 0x111111) << 2;
-    cube.right = cube.right & 0x666666 | (tempLeft & 0x444444) >> 2 | (tempLeft & 0x222222) << 2;
-
-    cube.moves |= FRONT2 << cube.movesPtr;
-    cube.movesPtr += 4;
+    moves |= RIGHT << movesPtr;
+    movesPtr += 4;
+	
+	let cube = {
+		front: front,
+		up: up,
+		right: right,
+		back: back,
+		bottom: bottom,
+		left: left,
+		moves: moves,
+		movesPtr: movesPtr
+	};
 
     return cube;
 }
 
-function turnTop2(cube) {
+function turnFrontPrime(front, up, right, back, bottom, left, moves, movesPtr) {
 
-    cube.up = rotateFace2(cube.up);
+    front = rotateFaceLeft(front);
 
-    let tempFront = cube.front;
-    let tempLeft = cube.left;
+    let tempUp = up;
 
-    cube.front = cube.front & 0x333333 | cube.back & 0xCCCCCC;
-    cube.back = cube.back & 0x333333 | tempFront & 0xCCCCCC;
-    cube.left = cube.left & 0x333333 | cube.right & 0xCCCCCC;
-    cube.right = cube.right & 0x333333 | tempLeft & 0xCCCCCC;
+    up = up & 0xCCCCCC | (right & 0x888888) >> 3 | (right & 0x111111) << 1;
+    right = right & 0x666666 | (bottom & 0x888888) >> 3 | (bottom & 0x444444) << 1;
+    bottom = bottom & 0x333333 | (left & 0x666666) << 1;
+    left = left & 0x999999 | (tempUp & 0x333333) << 1;
 
-    cube.moves |= UP2 << cube.movesPtr;
-    cube.movesPtr += 4;
+    moves |= FRONT_PRIME << movesPtr;
+    movesPtr += 4;
+	
+	let cube = {
+		front: front,
+		up: up,
+		right: right,
+		back: back,
+		bottom: bottom,
+		left: left,
+		moves: moves,
+		movesPtr: movesPtr
+	};
 
     return cube;
 }
 
-function turnRight2(cube) {
+function turnUpPrime(front, up, right, back, bottom, left, moves, movesPtr) {
 
-    cube.right = rotateFace2(cube.right);
+    up = rotateFaceLeft(up);
 
-    let tempFront = cube.front;
-    let tempBottom = cube.bottom;
+    let tempFront = front;
 
-    cube.front = cube.front & 0x999999 | (cube.back & 0x888888) >> 2 | (cube.back & 0x111111) << 2;
-    cube.back = cube.back & 0x666666 | (tempFront & 0x444444) >> 2 | (tempFront & 0x222222) << 2;
-    cube.bottom = cube.bottom & 0x999999 | cube.up & 0x666666;
-    cube.up = cube.up & 0x999999 | tempBottom & 0x666666;
+    front = front & 0x333333 | left & 0xCCCCCC;
+    left = left & 0x333333 | back & 0xCCCCCC;
+    back = back & 0x333333 | right & 0xCCCCCC;
+    right = right & 0x333333 | tempFront & 0xCCCCCC;
 
-    cube.moves |= RIGHT2 << cube.movesPtr;
-    cube.movesPtr += 4;
+    moves |= UP_PRIME << movesPtr;
+    movesPtr += 4;
+	
+	let cube = {
+		front: front,
+		up: up,
+		right: right,
+		back: back,
+		bottom: bottom,
+		left: left,
+		moves: moves,
+		movesPtr: movesPtr
+	};
+
+    return cube;
+}
+
+function turnRightPrime(front, up, right, back, bottom, left, moves, movesPtr) {
+    
+    right = rotateFaceLeft(right);
+
+    let tempFront = front;
+
+    front = front & 0x999999 | up & 0x666666;
+    up = up & 0x999999 | (back & 0x888888) >> 2 | (back & 0x111111) << 2;
+    back = back & 0x666666 | (bottom & 0x444444) >> 2 | (bottom & 0x222222) << 2;
+    bottom = bottom & 0x999999 | tempFront & 0x666666;
+
+    moves |= RIGHT_PRIME << movesPtr;
+    movesPtr += 4;
+	
+	let cube = {
+		front: front,
+		up: up,
+		right: right,
+		back: back,
+		bottom: bottom,
+		left: left,
+		moves: moves,
+		movesPtr: movesPtr
+	};
+
+    return cube;
+}
+
+function turnFront2(front, up, right, back, bottom, left, moves, movesPtr) {
+
+    front = rotateFace2(front);
+
+    let tempUp = up;
+    let tempLeft = left;
+
+    up = up & 0xCCCCCC | (bottom & 0xCCCCCC) >> 2;
+    bottom = bottom & 0x333333 | (tempUp & 0x333333) << 2;
+    left = left & 0x999999 | (right & 0x888888) >> 2 | (right & 0x111111) << 2;
+    right = right & 0x666666 | (tempLeft & 0x444444) >> 2 | (tempLeft & 0x222222) << 2;
+
+    moves |= FRONT2 << movesPtr;
+    movesPtr += 4;
+	
+	let cube = {
+		front: front,
+		up: up,
+		right: right,
+		back: back,
+		bottom: bottom,
+		left: left,
+		moves: moves,
+		movesPtr: movesPtr
+	};
+
+    return cube;
+}
+
+function turnUp2(front, up, right, back, bottom, left, moves, movesPtr) {
+
+    up = rotateFace2(up);
+
+    let tempFront = front;
+    let tempLeft = left;
+
+    back = back & 0x333333 | tempFront & 0xCCCCCC;
+    front = front & 0x333333 | back & 0xCCCCCC;
+    left = left & 0x333333 | right & 0xCCCCCC;
+    right = right & 0x333333 | tempLeft & 0xCCCCCC;
+
+    moves |= UP2 << movesPtr;
+    movesPtr += 4;
+	
+	let cube = {
+		front: front,
+		up: up,
+		right: right,
+		back: back,
+		bottom: bottom,
+		left: left,
+		moves: moves,
+		movesPtr: movesPtr
+	};
+
+    return cube;
+}
+
+function turnRight2(front, up, right, back, bottom, left, moves, movesPtr) {
+
+    right = rotateFace2(right);
+
+    let tempFront = front;
+    let tempBottom = bottom;
+
+    front = front & 0x999999 | (back & 0x888888) >> 2 | (back & 0x111111) << 2;
+    back = back & 0x666666 | (tempFront & 0x444444) >> 2 | (tempFront & 0x222222) << 2;
+    bottom = bottom & 0x999999 | up & 0x666666;
+    up = up & 0x999999 | tempBottom & 0x666666;
+
+    moves |= RIGHT2 << movesPtr;
+    movesPtr += 4;
+	
+	let cube = {
+		front: front,
+		up: up,
+		right: right,
+		back: back,
+		bottom: bottom,
+		left: left,
+		moves: moves,
+		movesPtr: movesPtr
+	};
 
     return cube;
 }
