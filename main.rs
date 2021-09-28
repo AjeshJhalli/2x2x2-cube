@@ -1,5 +1,9 @@
+extern crate serde;
+
 use std::primitive::str;
-use std::env;
+use serde::{Serialize, Deserialize};
+use std::collections::VecDeque;
+use std::io::Write;
 
 // BLUE YELLOW RED GREEN WHITE ORANGE
 
@@ -14,7 +18,7 @@ const TOP2: i128 = 8;
 const RIGHT2: i128 = 9;
 
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 struct Cube {
     front: i32,
     top: i32,
@@ -39,228 +43,104 @@ fn main() {
         moves_ptr: 0
     };
 
-    let args: Vec<String> = env::args().collect();
-    let shuffle = &args[1];
+    println!("Generating table...");
 
-    let mut shuffled_cube = exec_algorithm(solved_cube, shuffle);
-    shuffled_cube.moves = 0;
-    shuffled_cube.moves_ptr = 0;
+    let moves = [FRONT2, TOP2, RIGHT2, FRONT, TOP, RIGHT, FRONT_PRIME, TOP_PRIME, RIGHT_PRIME];
 
-    println!("Shuffle: {}", shuffle);
-    println!("Solving cube...");
+    let mut states = VecDeque::new();
+    states.push_back(solved_cube);
 
-    let moves = [FRONT2, TOP2, RIGHT2, FRONT, TOP, RIGHT, FRONT_PRIME, TOP_PRIME,
-                 RIGHT_PRIME];
+    while states.len() < 3674160 {
 
-    let mut front_states = std::collections::VecDeque::new();
-    let mut back_states = std::collections::VecDeque::new();
+        let state = *states.front().unwrap();
+        states.pop_front();
 
-    front_states.push_back(shuffled_cube);
-    back_states.push_back(solved_cube);
+        let mut prev_move = state.moves;
 
-    loop {
-        let front_state = *front_states.front().unwrap();
-        front_states.pop_front();
-
-        let back_state = *back_states.front().unwrap();
-        back_states.pop_front();
-
-        for i in 0..front_states.len() {
-            for j in 0..back_states.len() {
-                if front_states[i].front == back_states[j].front &&
-                   front_states[i].right == back_states[j].right &&
-                   front_states[i].top == back_states[j].top &&
-                   front_states[i].back == back_states[j].back &&
-                   front_states[i].bottom == back_states[j].bottom &&
-                   front_states[i].left == back_states[j].left {
-
-                    display_solution(front_states[i].moves, back_states[j].moves);
-
-                    return;
-                }
+        if prev_move & 0xF != 0 {
+            while prev_move & 0xF0 != 0{
+                prev_move >>= 4;
             }
         }
 
-        let mut front_prev_move = front_state.moves;
-        let mut back_prev_move = back_state.moves;
+        for i in 0..moves.len() {
 
-        if front_prev_move & 0xF != 0 {
-            while front_prev_move & 0xF0 != 0{
-                front_prev_move >>= 4;
-            }
-        }
+            let next = match prev_move {
+                FRONT | FRONT_PRIME | FRONT2 => match moves[i] {
+                    TOP2 => turn_top2(state),
+                    RIGHT2 => turn_right2(state),
+                    TOP => turn_top(state),
+                    TOP_PRIME => turn_top_prime(state),
+                    RIGHT => turn_right(state),
+                    RIGHT_PRIME => turn_right_prime(state),
+                    _ => continue,
+                },
+                TOP | TOP_PRIME | TOP2 => match moves[i] {
+                    FRONT2 => turn_front2(state),
+                    RIGHT2 => turn_right2(state),
+                    FRONT => turn_front(state),
+                    FRONT_PRIME => turn_front_prime(state),
+                    RIGHT => turn_right(state),
+                    RIGHT_PRIME => turn_right_prime(state),
+                    _ => continue,
+                },
+                RIGHT | RIGHT_PRIME | RIGHT2 => match moves[i] {
+                    FRONT2 => turn_front2(state),
+                    TOP2 => turn_top2(state),
+                    FRONT => turn_front(state),
+                    FRONT_PRIME => turn_front_prime(state),
+                    TOP => turn_top(state),
+                    TOP_PRIME => turn_top_prime(state),
+                    _ => continue,
+                },
+                _ => match moves[i] {
+                    FRONT2 => turn_front2(state),
+                    TOP2 => turn_top2(state),
+                    RIGHT2 => turn_right2(state),
+                    FRONT => turn_front(state),
+                    TOP => turn_top(state),
+                    FRONT_PRIME => turn_front_prime(state),
+                    TOP_PRIME => turn_top_prime(state),
+                    RIGHT => turn_right(state),
+                    RIGHT_PRIME => turn_right_prime(state),
+                    _ => state,
+                },
+            };
 
-        if back_prev_move & 0xF != 0 {
-            while back_prev_move & 0xF0 != 0 {
-                back_prev_move >>= 4;
-            }
-        }
-
-        if front_prev_move & 30720 == 0 {
-
-            for i in 0..moves.len() {
-
-                let next_front = match front_prev_move {
-                    FRONT | FRONT_PRIME | FRONT2 => match moves[i] {
-                        TOP2 => turn_top2(front_state),
-                        RIGHT2 => turn_right2(front_state),
-                        TOP => turn_top(front_state),
-                        TOP_PRIME => turn_top_prime(front_state),
-                        RIGHT => turn_right(front_state),
-                        RIGHT_PRIME => turn_right_prime(front_state),
-                        _ => continue,
-                    },
-                    TOP | TOP_PRIME | TOP2 => match moves[i] {
-                        FRONT2 => turn_front2(front_state),
-                        RIGHT2 => turn_right2(front_state),
-                        FRONT => turn_front(front_state),
-                        FRONT_PRIME => turn_front_prime(front_state),
-                        RIGHT => turn_right(front_state),
-                        RIGHT_PRIME => turn_right_prime(front_state),
-                        _ => continue,
-                    },
-                    RIGHT | RIGHT_PRIME | RIGHT2 => match moves[i] {
-                        FRONT2 => turn_front2(front_state),
-                        TOP2 => turn_top2(front_state),
-                        FRONT => turn_front(front_state),
-                        FRONT_PRIME => turn_front_prime(front_state),
-                        TOP => turn_top(front_state),
-                        TOP_PRIME => turn_top_prime(front_state),
-                        _ => continue,
-                    },
-                    _ => match moves[i] {
-                        FRONT2 => turn_front2(front_state),
-                        TOP2 => turn_top2(front_state),
-                        RIGHT2 => turn_right2(front_state),
-                        FRONT => turn_front(front_state),
-                        TOP => turn_top(front_state),
-                        FRONT_PRIME => turn_front_prime(front_state),
-                        TOP_PRIME => turn_top_prime(front_state),
-                        RIGHT => turn_right(front_state),
-                        RIGHT_PRIME => turn_right_prime(front_state),
-                        _ => front_state,
-                    },
-                };
-
-                front_states.push_back(next_front);
-            }   
-        }
-
-        if back_prev_move & 30720 == 0 {
-            for i in 0..moves.len() {
-
-                let next_back = match back_prev_move {
-                    FRONT | FRONT_PRIME | FRONT2 => match moves[i] {
-                        TOP2 => turn_top2(back_state),
-                        RIGHT2 => turn_right2(back_state),
-                        TOP => turn_top(back_state),
-                        RIGHT => turn_right(back_state),
-                        TOP_PRIME => turn_top_prime(back_state),
-                        RIGHT_PRIME => turn_right_prime(back_state),
-                        _ => continue,
-                    },
-                    TOP | TOP_PRIME | TOP2 => match moves[i] {
-                        FRONT2 => turn_front2(back_state),
-                        RIGHT2 => turn_right2(back_state),
-                        FRONT => turn_front(back_state),
-                        RIGHT => turn_right(back_state),
-                        FRONT_PRIME => turn_front_prime(back_state),
-                        RIGHT_PRIME => turn_right_prime(back_state),
-                        _ => continue,
-                    },
-                    RIGHT | RIGHT_PRIME | RIGHT2 => match moves[i] {
-                        FRONT2 => turn_front2(back_state),
-                        TOP2 => turn_top2(back_state),
-                        FRONT => turn_front(back_state),
-                        TOP => turn_top(back_state),
-                        FRONT_PRIME => turn_front_prime(back_state),
-                        TOP_PRIME => turn_top_prime(back_state),
-                        _ => continue,
-                    },
-                    _ => match moves[i] {
-                        FRONT2 => turn_front2(back_state),
-                        TOP2 => turn_top2(back_state),
-                        RIGHT2 => turn_right2(back_state),
-                        FRONT => turn_front(back_state),
-                        TOP => turn_top(back_state),
-                        FRONT_PRIME => turn_front_prime(back_state),
-                        TOP_PRIME => turn_top_prime(back_state),
-                        RIGHT => turn_right(back_state),
-                        RIGHT_PRIME => turn_right_prime(back_state),
-                        _ => back_state
-                    },
-                };
-
-                back_states.push_back(next_back);
+            if !contains_state(&states, next) {
+                states.push_back(next);
             }
         }
     }
+
+    // now save states to file
+
+    println!("Saving table");
+
+    let mut file = std::fs::File::create("optimal-table.txt").expect("create failed");
+
+    for i in 0..states.len() {
+        let serialized = serde_json::to_string(&(states[i])).unwrap();
+        file.write_all(serialized.as_bytes()).expect("Error: Text could not be written");
+        file.write(b"\n").expect("Error: Newline could not be written");
+    }
+
+    println!("Table has been saved");
 }
 
-fn display_solution(front_moves: i128, back_moves: i128) {
+fn contains_state(states: &VecDeque<Cube>, check_state: Cube) -> bool {
 
-    print!("Solve: ");
-        
-    let pointer = 0xF;
-
-    for k in 0..7 {
-        let shift_amount = k * 4;
-        let the_move = (front_moves & pointer << shift_amount) >> shift_amount;
-        
-        match the_move {
-            FRONT => print!("F "),
-            TOP => print!("U "),
-            RIGHT => print!("R "),
-            FRONT_PRIME => print!("F' "),
-            TOP_PRIME => print!("U' "),
-            RIGHT_PRIME => print!("R' "),
-            FRONT2 => print!("F2 "),
-            TOP2 => print!("U2 "),
-            RIGHT2 => print!("R2 "),
-            _ => break,
+    for i in 0..states.len() {
+        if states[i].front == check_state.front &&
+           states[i].top == check_state.top &&
+           states[i].right == check_state.right &&
+           states[i].back == check_state.back &&
+           states[i].bottom == check_state.bottom &&
+           states[i].left == check_state.left {
+            return true;
         }
     }
-
-    for l in 0..7 {
-
-        let shift_amount = (6-l) * 4;
-        let the_move = (back_moves & pointer << shift_amount) >> shift_amount;
-        match the_move {
-
-            FRONT => print!("F' "),
-            TOP => print!("U' "),
-            RIGHT => print!("R' "),
-            FRONT_PRIME => print!("F "),
-            TOP_PRIME => print!("U "),
-            RIGHT_PRIME => print!("R "),
-            FRONT2 => print!("F2 "),
-            TOP2 => print!("U2 "),
-            RIGHT2 => print!("R2 "),
-            _ => continue,
-        }
-    }
-
-    println!("");
-}
-
-fn exec_algorithm(mut cube: Cube, algorithm: &str) -> Cube {
-
-    for symbol in algorithm.split_whitespace() {
-        cube = match symbol {
-            "F" => turn_front(cube),
-            "U" => turn_top(cube),
-            "R" => turn_right(cube),
-            "F'" => turn_front_prime(cube),
-            "U'" => turn_top_prime(cube),
-            "R'" => turn_right_prime(cube),
-            "F2" => turn_front2(cube),
-            "U2" => turn_top2(cube),
-            "R2" => turn_right2(cube),
-            _ => cube,
-        }
-    }
-
-    cube
+    false
 }
 
 fn rotate_face_right(num: i32) -> i32 {
