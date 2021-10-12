@@ -1,77 +1,438 @@
 <!doctype html>
 <html>
 	<head>
-		<link rel="stylesheet" href="main.css">
+		<style>
+            body {
+                font-family: Arial, sans-serif, Helvetica;
+                background-color: darkslategrey;
+                color: lightgray;
+            }
+            #optimalSolveButton {
+                width: 200px;
+                height: 40px;
+                font-size: 20px;
+            }
+            .front, #bluebutton {
+                background-color: blue;
+                width: 50px;
+                height: 50px;
+            }
+            .up, #yellowbutton {
+                background-color: yellow;
+                width: 50px;
+                height: 50px;
+            }
+            .right, #redbutton {
+                background-color: red;
+                width: 50px;
+                height: 50px;
+            }
+            .back, #greenbutton {
+                background-color: green;
+                width: 50px;
+                height: 50px;
+            }
+            .bottom, #whitebutton {
+                background-color: white;
+                width: 50px;
+                height: 50px;
+            }
+            .left, #orangebutton {
+                background-color: orange;
+                width: 50px;
+                height: 50px;
+            }
+            .empty {
+                width: 50px;
+                height: 50px;
+            }
+        </style>
 	</head>
 	<body>
-		<table>
-			<tr>
-				<td class="empty"></td>
-				<td class="empty"></td>
-				<td><button class="up" id="f5"></button></td>
-				<td><button class="up" id="f6"></button></td>
-				<td class="empty"></td>
-				<td class="empty"></td>
-			</tr>
-			<tr>
-				<td class="empty"></td>
-				<td class="empty"></td>
-				<td><button class="up" id="f8"></button></td>
-				<td><button class="up" id="f7"></button></td>
-				<td class="empty"></td>
-				<td class="empty"></td>
-			</tr>
-			<tr>
-				<td><button class="left" id="f21"></button></td>
-				<td><button class="left" id="f22"></button></td>
-				<td><button class="front" id="f1"></button></td>
-				<td><button class="front" id="f2"></button></td>
-				<td><button class="right" id="f9"></button></td>
-				<td><button class="right" id="f10"></button></td>
-				<td><button class="back" id="f13"></button></td>
-				<td><button class="back" id="f14"></button></td>
-			</tr>
-			<tr>
-				<td><button class="left" id="f24"></button></td>
-				<td><button class="left" id="f23"></button></td>
-				<td><button class="front" id="f4"></button></td>
-				<td><button class="front" id="f3"></button></td>
-				<td><button class="right" id="f12"></button></td>
-				<td><button class="right" id="f11"></button></td>
-				<td><button class="back" id="f16"></button></td>
-				<td><button class="back" id="f15"></button></td>
-			</tr>
-			<tr>
-				<td class="empty"></td>
-				<td class="empty"></td>
-				<td><button class="bottom" id="f17"></button></td>
-				<td><button class="bottom" id="f18"></button></td>
-				<td class="empty"></td>
-				<td class="empty"></td>
-			</tr>
-			<tr>
-				<td class="empty"></td>
-				<td class="empty"></td>
-				<td><button class="bottom" id="f20"></button></td>
-				<td><button class="bottom" id="f19"></button></td>
-				<td class="empty"></td>
-				<td class="empty"></td>
-			</tr>
-		</table>
-		<h1>Select colour:</h1>
-		<button id="bluebutton"></button>
-		<button id="yellowbutton"></button>
-		<button id="redbutton"></button>
-		<button id="greenbutton"></button>
-		<button id="whitebutton"></button>
-		<button id="orangebutton"></button>
-		
-		<br>
-		
-		<button onclick="optimalSolve();">Optimal solve</button>
-		
-		<script src="cubeinput.js"></script>
-		<script src="convertcube.js"></script>
-		<script src="2x2x2-solver.js"></script>
+        <center>
+            <table>
+                <tr>
+                    <td class="empty"></td>
+                    <td class="empty"></td>
+                    <td><button class="up" id="f5"></button></td>
+                    <td><button class="up" id="f6"></button></td>
+                    <td class="empty"></td>
+                    <td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="empty"></td>
+                    <td class="empty"></td>
+                    <td><button class="up" id="f8"></button></td>
+                    <td><button class="up" id="f7"></button></td>
+                    <td class="empty"></td>
+                    <td class="empty"></td>
+                </tr>
+                <tr>
+                    <td><button class="left" id="f21"></button></td>
+                    <td><button class="left" id="f22"></button></td>
+                    <td><button class="front" id="f1"></button></td>
+                    <td><button class="front" id="f2"></button></td>
+                    <td><button class="right" id="f9"></button></td>
+                    <td><button class="right" id="f10"></button></td>
+                    <td><button class="back" id="f13"></button></td>
+                    <td><button class="back" id="f14"></button></td>
+                </tr>
+                <tr>
+                    <td><button class="left" id="f24"></button></td>
+                    <td><button class="left" id="f23"></button></td>
+                    <td><button class="front" id="f4"></button></td>
+                    <td><button class="front" id="f3"></button></td>
+                    <td><button class="right" id="f12"></button></td>
+                    <td><button class="right" id="f11"></button></td>
+                    <td><button class="back" id="f16"></button></td>
+                    <td><button class="back" id="f15"></button></td>
+                </tr>
+                <tr>
+                    <td class="empty"></td>
+                    <td class="empty"></td>
+                    <td><button class="bottom" id="f17"></button></td>
+                    <td><button class="bottom" id="f18"></button></td>
+                    <td class="empty"></td>
+                    <td class="empty"></td>
+                </tr>
+                <tr>
+                    <td class="empty"></td>
+                    <td class="empty"></td>
+                    <td><button class="bottom" id="f20"></button></td>
+                    <td><button class="bottom" id="f19"></button></td>
+                    <td class="empty"></td>
+                    <td class="empty"></td>
+                </tr>
+            </table>
+            <h1>Select colour:</h1>
+            <button id="bluebutton"></button>
+            <button id="yellowbutton"></button>
+            <button id="redbutton"></button>
+            <button id="greenbutton"></button>
+            <button id="whitebutton"></button>
+            <button id="orangebutton"></button>
+
+            <br>
+
+            <button onclick="optimalSolveRequest();" id="optimalSolveButton">Optimal solve</button>
+
+            <h1><b>Solution: </b></h1>
+            <h1 id="solutionArea"></h1>
+
+            <h2>The green-white-orange piece is in a fixed position, so orient your cube around this piece in order to input the facelet colours correctly.</h2>
+        </center>
+		<script>
+            const BLUE = 1;
+            const YELLOW = 2;
+            const RED = 3;
+            const GREEN = 4;
+            const WHITE = 5;
+            const ORANGE = 6;
+
+            var selectedColour;
+
+            setColours();
+
+            function optimalSolveRequest() {
+
+                let shuffledCube = convertCube();
+
+                document.getElementById('solutionArea').innerHTML = 'Solving your cube...';
+
+                const URL = 'http://localhost:8000/solve';
+
+                fetch(URL, {
+                    method: 'POST',
+                    body: JSON.stringify(shuffledCube),
+                    headers: {
+                        'Content-Type': 'application/json; charset=UTF-8'
+                    }
+                })
+                .then(res => {
+                    let solutionJson = res.json();
+                    document.getElementById('solutionArea').innerHTML = solutionJson.sol;
+                });
+            }
+
+            function setColours() {
+
+                elements = document.getElementsByClassName('front');
+                for (let i = 0; i < elements.length; i++) {
+                    elements[i].style.backgroundColor = 'blue';
+                }
+
+                elements = document.getElementsByClassName('up');
+                for (let i = 0; i < elements.length; i++) {
+                    elements[i].style.backgroundColor = 'yellow';
+                }
+
+                elements = document.getElementsByClassName('right');
+                for (let i = 0; i < elements.length; i++) {
+                    elements[i].style.backgroundColor = 'red';
+                }
+
+                elements = document.getElementsByClassName('back');
+                for (let i = 0; i < elements.length; i++) {
+                    elements[i].style.backgroundColor = 'green';
+                }
+
+                elements = document.getElementsByClassName('bottom');
+                for (let i = 0; i < elements.length; i++) {
+                    elements[i].style.backgroundColor = 'white';
+                }
+
+                elements = document.getElementsByClassName('left');
+                for (let i = 0; i < elements.length; i++) {
+                    elements[i].style.backgroundColor = 'orange';
+                }
+            }
+
+            document.getElementById('bluebutton').onclick = function () {
+                selectedColour = BLUE;
+            }
+
+            document.getElementById('yellowbutton').onclick = function () {
+                selectedColour = YELLOW;
+            }
+
+            document.getElementById('redbutton').onclick = function () {
+                selectedColour = RED;
+            }
+
+            document.getElementById('greenbutton').onclick = function () {
+                selectedColour = GREEN;
+            }
+
+            document.getElementById('whitebutton').onclick = function () {
+                selectedColour = WHITE;
+            }
+
+            document.getElementById('orangebutton').onclick = function () {
+                selectedColour = ORANGE;
+            }
+
+
+            function changeColour(facelet) {
+                switch (selectedColour) {
+                    case BLUE:
+                        facelet.style.backgroundColor = 'blue';
+                        break;
+                    case YELLOW:
+                        facelet.style.backgroundColor = 'yellow';
+                        break;
+                    case RED:
+                        facelet.style.backgroundColor = 'red';
+                        break;
+                    case GREEN:
+                        facelet.style.backgroundColor = 'green';
+                        break;
+                    case WHITE:
+                        facelet.style.backgroundColor = 'white';
+                        break;
+                    case ORANGE:
+                        facelet.style.backgroundColor = 'orange';
+                        break;
+                }
+            }
+
+
+            document.getElementById('f1').onclick = function () {
+                changeColour(document.getElementById('f1'));
+            }
+
+            document.getElementById('f2').onclick = function () {
+                changeColour(document.getElementById('f2'));
+            }
+
+            document.getElementById('f3').onclick = function () {
+                changeColour(document.getElementById('f3'));
+            }
+
+            document.getElementById('f4').onclick = function () {
+                changeColour(document.getElementById('f4'));
+            }
+
+            document.getElementById('f5').onclick = function () {
+                changeColour(document.getElementById('f5'));
+            }
+
+            document.getElementById('f6').onclick = function () {
+                changeColour(document.getElementById('f6'));
+            }
+
+            document.getElementById('f7').onclick = function () {
+                changeColour(document.getElementById('f7'));
+            }
+
+            document.getElementById('f8').onclick = function () {
+                changeColour(document.getElementById('f8'));
+            }
+
+            document.getElementById('f9').onclick = function () {
+                changeColour(document.getElementById('f9'));
+            }
+
+            document.getElementById('f10').onclick = function () {
+                changeColour(document.getElementById('f10'));
+            }
+
+            document.getElementById('f11').onclick = function () {
+                changeColour(document.getElementById('f11'));
+            }
+
+            document.getElementById('f12').onclick = function () {
+                changeColour(document.getElementById('f12'));
+            }
+
+            document.getElementById('f13').onclick = function () {
+                changeColour(document.getElementById('f13'));
+            }
+
+            document.getElementById('f14').onclick = function () {
+                changeColour(document.getElementById('f14'));
+            }
+
+            document.getElementById('f15').onclick = function () {
+                //changeColour(document.getElementById('f15'));
+            }
+
+            document.getElementById('f16').onclick = function () {
+                changeColour(document.getElementById('f16'));
+            }
+
+            document.getElementById('f17').onclick = function () {
+                changeColour(document.getElementById('f17'));
+            }
+
+            document.getElementById('f18').onclick = function () {
+                changeColour(document.getElementById('f18'));
+            }
+
+            document.getElementById('f19').onclick = function () {
+                changeColour(document.getElementById('f19'));
+            }
+
+            document.getElementById('f20').onclick = function () {
+                //changeColour(document.getElementById('f20'));
+            }
+
+            document.getElementById('f21').onclick = function () {
+                changeColour(document.getElementById('f21'));
+            }
+
+            document.getElementById('f22').onclick = function () {
+                changeColour(document.getElementById('f22'));
+            }
+
+            document.getElementById('f23').onclick = function () {
+                changeColour(document.getElementById('f23'));
+            }
+
+            document.getElementById('f24').onclick = function () {
+                //changeColour(document.getElementById('f24'));
+            }
+            function convertCube() {
+
+                cube = {
+                    front: 0,
+                    up: 0,
+                    right: 0,
+                    back: 0,
+                    bottom: 0,
+                    left: 0,
+                    moves: 0,
+                    movesPtr: 0
+                };
+
+                // Front
+                facelet = document.getElementById('f1').style.backgroundColor;
+                cube.front = addFacelet(cube.front, facelet, 0x8);
+                facelet = document.getElementById('f2').style.backgroundColor;
+                cube.front = addFacelet(cube.front, facelet, 0x4);
+                facelet = document.getElementById('f3').style.backgroundColor;
+                cube.front = addFacelet(cube.front, facelet, 0x2);
+                facelet = document.getElementById('f4').style.backgroundColor;
+                cube.front = addFacelet(cube.front, facelet, 0x1);
+
+                // Up
+                facelet = document.getElementById('f5').style.backgroundColor;
+                cube.up = addFacelet(cube.up, facelet, 0x8);
+                facelet = document.getElementById('f6').style.backgroundColor;
+                cube.up = addFacelet(cube.up, facelet, 0x4);
+                facelet = document.getElementById('f7').style.backgroundColor;
+                cube.up = addFacelet(cube.up, facelet, 0x2);
+                facelet = document.getElementById('f8').style.backgroundColor;
+                cube.up = addFacelet(cube.up, facelet, 0x1);
+
+                // Right
+                facelet = document.getElementById('f9').style.backgroundColor;
+                cube.right = addFacelet(cube.right, facelet, 0x8);
+                facelet = document.getElementById('f10').style.backgroundColor;
+                cube.right = addFacelet(cube.right, facelet, 0x4);
+                facelet = document.getElementById('f11').style.backgroundColor;
+                cube.right = addFacelet(cube.right, facelet, 0x2);
+                facelet = document.getElementById('f12').style.backgroundColor;
+                cube.right = addFacelet(cube.right, facelet, 0x1);
+
+                // Back
+                facelet = document.getElementById('f13').style.backgroundColor;
+                cube.back = addFacelet(cube.back, facelet, 0x8);
+                facelet = document.getElementById('f14').style.backgroundColor;
+                cube.back = addFacelet(cube.back, facelet, 0x4);
+                facelet = document.getElementById('f15').style.backgroundColor;
+                cube.back = addFacelet(cube.back, facelet, 0x2);
+                facelet = document.getElementById('f16').style.backgroundColor;
+                cube.back = addFacelet(cube.back, facelet, 0x1);
+
+                // Bottom
+                facelet = document.getElementById('f17').style.backgroundColor;
+                cube.bottom = addFacelet(cube.bottom, facelet, 0x8);
+                facelet = document.getElementById('f18').style.backgroundColor;
+                cube.bottom = addFacelet(cube.bottom, facelet, 0x4);
+                facelet = document.getElementById('f19').style.backgroundColor;
+                cube.bottom = addFacelet(cube.bottom, facelet, 0x2);
+                facelet = document.getElementById('f20').style.backgroundColor;
+                cube.bottom = addFacelet(cube.bottom, facelet, 0x1);
+
+                // Left
+                facelet = document.getElementById('f21').style.backgroundColor;
+                cube.left = addFacelet(cube.left, facelet, 0x8);
+                facelet = document.getElementById('f22').style.backgroundColor;
+                cube.left = addFacelet(cube.left, facelet, 0x4);
+                facelet = document.getElementById('f23').style.backgroundColor;
+                cube.left = addFacelet(cube.left, facelet, 0x2);
+                facelet = document.getElementById('f24').style.backgroundColor;
+                cube.left = addFacelet(cube.left, facelet, 0x1);
+
+                return cube;
+            }
+
+            function addFacelet(face, facelet, mask) {
+
+                switch (facelet) {
+                    case 'blue':
+                        face |= mask << 20;
+                        break;
+                    case 'yellow':
+                        face |= mask << 16;
+                        break;
+                    case 'red':
+                        face |= mask << 12;
+                        break;
+                    case 'green':
+                        console.log('yes');
+                        face |= mask << 8;
+                        break;
+                    case 'white':
+                        face |= mask << 4;
+                        break;
+                    case 'orange':
+                        face |= mask;
+                        break;
+                }
+
+                return face;
+            }
+		</script>
 	</body>
 </html>

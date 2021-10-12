@@ -1,3 +1,6 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+
 const FRONT = 1;
 const UP = 2;
 const RIGHT = 3;
@@ -8,10 +11,34 @@ const FRONT2 = 7;
 const UP2 = 8;
 const RIGHT2 = 9;
 
+const app = express();
 
-function optimalSolve () {
+const port = 8000;
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded());
+app.use(express.json());
+
+
+app.get('/', (req, res) => {
 	
-	let shuffledCube = convertCube();
+	res.sendFile(__dirname + '/main.html');
+});
+
+app.post('/solve', (req, res) => {
+
+	res.header("Content-Type", 'application/json');
+	let solution = optimalSolve(req.body);
+	console.log(solution);
+	res.send(JSON.stringify({ sol: solution }));
+	console.log(JSON.stringify(req.body));
+});
+
+app.listen(port, () => {
+	console.log('Server is running on port ' + port);
+})
+
+function optimalSolve (shuffledCube) {
 
 	let solvedCube = {
 		front: 0xF00000,
@@ -34,6 +61,15 @@ function optimalSolve () {
 	
 	frontStates.push(shuffledCube);
 	backStates.push(solvedCube);
+
+	if (shuffledCube.front == 0xF00000 &&
+		shuffledCube.up == 0x0F0000 &&
+		shuffledCube.right == 0x00F000 &&
+		shuffledCube.back == 0x000F00 &&
+		shuffledCube.bottom == 0x0000F0 &&
+		shuffledCube.left == 0x00000F) {
+		return 'Cube is already solved';
+    }
 	
 	while (true) {
 		let frontState = frontStates.shift();
@@ -42,14 +78,13 @@ function optimalSolve () {
 		for (let i = 0; i < frontStates.length; i++) {
 			for (let j = 0; j < backStates.length; j++) {
 				if (frontStates[i].front == backStates[j].front &&
-					frontStates[i].right == backStates[j].right &&
 					frontStates[i].up == backStates[j].up &&
+					frontStates[i].right == backStates[j].right &&
 					frontStates[i].back == backStates[j].back &&
 					frontStates[i].bottom == backStates[j].bottom &&
 					frontStates[i].left == backStates[j].left) {
 					   
-					displaySolution(frontStates[i].moves, backStates[j].moves);
-					return;
+					return solution(frontStates[i].moves, backStates[j].moves);
 				}
 			}
 		}
@@ -144,13 +179,11 @@ function turnCube(front, up, right, back, bottom, left, moves, movesPtr, prevMov
 	}
 }
 
-function displaySolution(frontMoves, backMoves) {
-
-    console.log("Solve: ");
+function solution(frontMoves, backMoves) {
         
     let pointer = 0xF;
 	
-	let solution = []
+	let solution = ["Solve: "]
 
     for (let i = 0; i < 7; i++) {
         let shiftAmount = i * 4;
@@ -222,7 +255,7 @@ function displaySolution(frontMoves, backMoves) {
         }
     }
 
-    document.writeln(solution.join(' '));
+	return solution.join(' ');
 }
 
 function execAlgorithm(cube, algorithm) {
