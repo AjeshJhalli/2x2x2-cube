@@ -4,47 +4,68 @@
 		<style>
             body {
                 font-family: Arial, sans-serif, Helvetica;
-                background-color: darkslategrey;
-                color: lightgray;
+                background-color: white;
+                color: black;
+                margin-left: 10%;
+                margin-right: 10%;
             }
-            #optimalSolveButton {
+            .solveButton {
                 width: 200px;
                 height: 40px;
                 font-size: 20px;
+                border-radius: 10px;
+            }
+            .selectbutton {
+                border-radius: 100%;
             }
             .front, #bluebutton {
-                background-color: blue;
+                background-color: #0496FF;
                 width: 50px;
                 height: 50px;
             }
             .up, #yellowbutton {
-                background-color: yellow;
+                background-color: #FFBC42;
                 width: 50px;
                 height: 50px;
             }
             .right, #redbutton {
-                background-color: red;
+                background-color: #D81159;
                 width: 50px;
                 height: 50px;
             }
             .back, #greenbutton {
-                background-color: green;
+                background-color: #4BB825;
                 width: 50px;
                 height: 50px;
             }
             .bottom, #whitebutton {
-                background-color: white;
+                background-color: #e8e4e6;
                 width: 50px;
                 height: 50px;
             }
             .left, #orangebutton {
-                background-color: orange;
+                background-color: #FF5701;
                 width: 50px;
                 height: 50px;
             }
             .empty {
                 width: 50px;
                 height: 50px;
+            }
+            .front, .up, .right, .back, .bottom, .left {
+                border-radius: 5px;
+                border: solid;
+                border-color: black;
+            }
+            .front:hover, .up:hover, .right:hover, .back:hover, .bottom:hover, .left:hover {
+                border: solid;
+                border-color: yellow;
+            }
+            #optimalDiv {
+                float: right;
+            }
+            #frontDiv {
+                float: left;
             }
         </style>
 	</head>
@@ -105,22 +126,30 @@
                 </tr>
             </table>
             <h1>Select colour:</h1>
-            <button id="bluebutton"></button>
-            <button id="yellowbutton"></button>
-            <button id="redbutton"></button>
-            <button id="greenbutton"></button>
-            <button id="whitebutton"></button>
-            <button id="orangebutton"></button>
-
+            <button class="selectbutton" id="bluebutton"></button>
+            <button class="selectbutton" id="yellowbutton"></button>
+            <button class="selectbutton" id="redbutton"></button>
+            <button class="selectbutton" id="greenbutton"></button>
+            <button class="selectbutton" id="whitebutton"></button>
+            <button class="selectbutton" id="orangebutton"></button>
+        </center>
             <br>
 
-            <button onclick="optimalSolveRequest();" id="optimalSolveButton">Optimal solve</button>
+            <div id="optimalDiv">
+                <button onclick="optimalSolveRequest();" class="solveButton">Optimal solve</button>
+                <h1><b>Optimal Solution: </b></h1>
+                <h1 id="solutionArea"></h1>
+            </div>
 
-            <h1><b>Solution: </b></h1>
-            <h1 id="solutionArea"></h1>
+            <div id="fastDiv">
+                <button class="solveButton">Fast solve</button>
+                <h1><b>Optimal Solution: </b></h1>
+                <h1 id="solutionArea"></h1>
+            </div>
 
+            <br><br><br>
             <h2>The green-white-orange piece is in a fixed position, so orient your cube around this piece in order to input the facelet colours correctly.</h2>
-        </center>
+        
 		<script>
             const BLUE = 1;
             const YELLOW = 2;
@@ -128,6 +157,13 @@
             const GREEN = 4;
             const WHITE = 5;
             const ORANGE = 6;
+
+            const BLUE_COLOUR = '#0496FF';
+            const YELLOW_COLOUR = '#FFBC42';
+            const RED_COLOUR = '#D81159';
+            const GREEN_COLOUR = '#4BB825';
+            const WHITE_COLOUR = '#e8e4e6';
+            const ORANGE_COLOUR = '#FF5701';
 
             var selectedColour;
 
@@ -158,32 +194,32 @@
 
                 elements = document.getElementsByClassName('front');
                 for (let i = 0; i < elements.length; i++) {
-                    elements[i].style.backgroundColor = 'blue';
+                    elements[i].style.backgroundColor = BLUE_COLOUR;
                 }
 
                 elements = document.getElementsByClassName('up');
                 for (let i = 0; i < elements.length; i++) {
-                    elements[i].style.backgroundColor = 'yellow';
+                    elements[i].style.backgroundColor = YELLOW_COLOUR;
                 }
 
                 elements = document.getElementsByClassName('right');
                 for (let i = 0; i < elements.length; i++) {
-                    elements[i].style.backgroundColor = 'red';
+                    elements[i].style.backgroundColor = RED_COLOUR;
                 }
 
                 elements = document.getElementsByClassName('back');
                 for (let i = 0; i < elements.length; i++) {
-                    elements[i].style.backgroundColor = 'green';
+                    elements[i].style.backgroundColor = GREEN_COLOUR;
                 }
 
                 elements = document.getElementsByClassName('bottom');
                 for (let i = 0; i < elements.length; i++) {
-                    elements[i].style.backgroundColor = 'white';
+                    elements[i].style.backgroundColor = WHITE_COLOUR;
                 }
 
                 elements = document.getElementsByClassName('left');
                 for (let i = 0; i < elements.length; i++) {
-                    elements[i].style.backgroundColor = 'orange';
+                    elements[i].style.backgroundColor = ORANGE_COLOUR;
                 }
             }
 
@@ -215,22 +251,22 @@
             function changeColour(facelet) {
                 switch (selectedColour) {
                     case BLUE:
-                        facelet.style.backgroundColor = 'blue';
+                        facelet.style.backgroundColor = BLUE_COLOUR;
                         break;
                     case YELLOW:
-                        facelet.style.backgroundColor = 'yellow';
+                        facelet.style.backgroundColor = YELLOW_COLOUR;
                         break;
                     case RED:
-                        facelet.style.backgroundColor = 'red';
+                        facelet.style.backgroundColor = RED_COLOUR;
                         break;
                     case GREEN:
-                        facelet.style.backgroundColor = 'green';
+                        facelet.style.backgroundColor = GREEN_COLOUR;
                         break;
                     case WHITE:
-                        facelet.style.backgroundColor = 'white';
+                        facelet.style.backgroundColor = WHITE_COLOUR;
                         break;
                     case ORANGE:
-                        facelet.style.backgroundColor = 'orange';
+                        facelet.style.backgroundColor = ORANGE_COLOUR;
                         break;
                 }
             }
@@ -411,27 +447,18 @@
 
                 switch (facelet) {
                     case 'blue':
-                        face |= mask << 20;
-                        break;
+                        return face | mask << 20;
                     case 'yellow':
-                        face |= mask << 16;
-                        break;
+                        return face | mask << 16;
                     case 'red':
-                        face |= mask << 12;
-                        break;
+                        return face | mask << 12;
                     case 'green':
-                        console.log('yes');
-                        face |= mask << 8;
-                        break;
+                        return face | mask << 8;
                     case 'white':
-                        face |= mask << 4;
-                        break;
+                        return face | mask << 4;
                     case 'orange':
-                        face |= mask;
-                        break;
+                        return face | mask;
                 }
-
-                return face;
             }
 		</script>
 	</body>
