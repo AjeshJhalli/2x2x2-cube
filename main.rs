@@ -46,6 +46,7 @@ fn main() {
     shuffled_cube.moves = 0;
     shuffled_cube.moves_ptr = 0;
 
+    println!("Warning: The shuffle can only contain: F, U, R, F', U', R', F2, U2 and R2.");
     println!("Shuffle: {}", shuffle);
     println!("Solving cube...");
 
@@ -59,11 +60,8 @@ fn main() {
     back_states.push_back(solved_cube);
 
     loop {
-        let front_state = *front_states.front().unwrap();
-        front_states.pop_front();
 
-        let back_state = *back_states.front().unwrap();
-        back_states.pop_front();
+        let mut exit = false;
 
         for i in 0..front_states.len() {
             for j in 0..back_states.len() {
@@ -76,9 +74,19 @@ fn main() {
 
                     display_solution(front_states[i].moves, back_states[j].moves);
 
-                    return;
+                    exit = true;
                 }
             }
+        }
+
+        let front_state = *front_states.front().unwrap();
+        front_states.pop_front();
+
+        let back_state = *back_states.front().unwrap();
+        back_states.pop_front();
+
+        if exit {
+            return;
         }
 
         let mut front_prev_move = front_state.moves;
