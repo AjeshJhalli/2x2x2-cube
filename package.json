@@ -1,11 +1,12 @@
 {
   "name": "2x2x2-cube",
-  "module": "index.js",
+  "module": "index.jsx",
   "type": "module",
   "devDependencies": {
     "bun-types": "latest"
   },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+  "dependencies": {
+    "@elysiajs/html": "^0.8.0",
+    "elysia": "^0.8.15"
   }
 }
